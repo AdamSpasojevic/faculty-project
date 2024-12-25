@@ -1,16 +1,17 @@
 from flask import Flask
+from flask_migrate import Migrate
+from extensions import db
 from controller import faculty_blueprint
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:spasojevic2002@localhost/faculty_db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Register the faculty blueprint
+db.init_app(app)
+migrate = Migrate(app, db)
+
+# Register the Blueprint from controller.py
 app.register_blueprint(faculty_blueprint)
-
-
-@app.route("/")
-def home():
-    return "Welcome to the Faculty API!"
-
 
 if __name__ == "__main__":
     app.run(debug=True)
