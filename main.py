@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
-from extensions import db
-from controller import faculty_blueprint
+from src.extensions import db
+from src.controllers.faculty_controller import faculty_blueprint
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:spasojevic2002@localhost/faculty_db'
@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# Register the Blueprint from controller.py
+# Register the faculty blueprint
 app.register_blueprint(faculty_blueprint)
 
 if __name__ == "__main__":

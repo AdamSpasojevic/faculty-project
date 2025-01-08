@@ -1,4 +1,4 @@
-from extensions import db
+from src.extensions import db
 
 class Faculty(db.Model):
     __tablename__ = 'faculties'
@@ -20,3 +20,7 @@ class Faculty(db.Model):
             "department": self.department,
             "title": self.title
         }
+
+    @classmethod
+    def from_dto(cls, dto):
+        return cls(name=dto.name, department=dto.department, title=dto.title)

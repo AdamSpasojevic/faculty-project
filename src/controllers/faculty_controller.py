@@ -1,5 +1,9 @@
 from flask import Blueprint, request, jsonify
-from service import FacultyService
+from pydantic import ValidationError
+
+from src.services.faculty_service import FacultyService
+from src.dtos.faculty_dto import FacultyDTO
+from src.models.faculty import Faculty
 
 faculty_service = FacultyService()
 faculty_blueprint = Blueprint('faculty', __name__)
@@ -21,30 +25,37 @@ def get_faculty(faculty_id):
 
 @faculty_blueprint.route('/faculty', methods=['POST'])
 def create_faculty():
-    data = request.get_json()
-    if not data or 'name' not in data or 'department' not in data or 'title' not in data:
-        return jsonify({"error": "Missing required fields"}), 400
+    # Grab the raw JSON
+    raw_json = request.get_json()
 
-    new_faculty = faculty_service.create_faculty(
-        data['name'],
-        data['department'],
-        data['title']
-    )
+    # Validate against the Pydantic DTO
+    try:
+        dto = FacultyDTO(**raw_json)
+    except ValidationError as e:
+        return jsonify({"error": str(e)}), 400
+
+    # Convert the DTO to a Faculty model
+    faculty_obj = dto.to_model()
+
+    # Create in DB
+    new_faculty = faculty_service.create_faculty(faculty_obj)
     return jsonify(new_faculty), 201
 
 
 @faculty_blueprint.route('/faculty/<int:faculty_id>', methods=['PUT'])
 def update_faculty(faculty_id):
-    data = request.get_json()
-    if not data or 'name' not in data or 'department' not in data or 'title' not in data:
-        return jsonify({"error": "Missing required fields"}), 400
+    raw_json = request.get_json()
+    if not raw_json:
+        return jsonify({"error": "No data provided"}), 400
 
-    updated_faculty = faculty_service.update_faculty(
-        faculty_id,
-        data['name'],
-        data['department'],
-        data['title']
-    )
+    try:
+        dto = FacultyDTO(**raw_json)
+    except ValidationError as e:
+        return jsonify({"error": str(e)}), 400
+
+    faculty_obj = dto.to_model()
+
+    updated_faculty = faculty_service.update_faculty(faculty_id, faculty_obj)
     if updated_faculty:
         return jsonify(updated_faculty), 200
     return jsonify({"error": "Faculty not found"}), 404
@@ -56,3 +67,4 @@ def delete_faculty(faculty_id):
     if success:
         return jsonify({"message": "Faculty deleted"}), 200
     return jsonify({"error": "Faculty not found"}), 404
+
