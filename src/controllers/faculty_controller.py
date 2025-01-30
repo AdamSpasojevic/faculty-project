@@ -2,10 +2,12 @@ from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 
 from src.services.faculty_service import FacultyService
+from src.repositories.faculty_repository import FacultyRepository
 from src.dtos.faculty_dto import FacultyDTO
-from src.models.faculty import Faculty
 
-faculty_service = FacultyService()
+faculty_repository = FacultyRepository()  # Instantiate Repository
+faculty_service = FacultyService(faculty_repository)  # Inject into Service
+
 faculty_blueprint = Blueprint('faculty', __name__)
 
 
@@ -29,10 +31,7 @@ def create_faculty():
     raw_json = request.get_json()
 
     # Validate against the Pydantic DTO
-    try:
-        dto = FacultyDTO(**raw_json)
-    except ValidationError as e:
-        return jsonify({"error": str(e)}), 400
+    dto = FacultyDTO(**request.get_json())
 
     # Convert the DTO to a Faculty model
     faculty_obj = dto.to_model()

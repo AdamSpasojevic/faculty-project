@@ -3,8 +3,8 @@ from src.models.faculty import Faculty
 
 
 class FacultyService:
-    def __init__(self):
-        self.repo = FacultyRepository()
+    def __init__(self, faculty_repository: FacultyRepository):
+        self.repo = faculty_repository
 
     def get_all_faculties(self):
         faculties = self.repo.get_all_faculties()
@@ -18,19 +18,17 @@ class FacultyService:
         created = self.repo.create_faculty(faculty)
         return created.to_dict()
 
-    def update_faculty(self, faculty_id: int, updated_faculty: Faculty):
-        """
-        1) Use faculty_id to check if record exists
-        2) If yes, set updated_faculty.id so the repository can do the merge
-        """
-        existing = self.repo.get_faculty_by_id(faculty_id)
+    def update_faculty(self, updated_faculty: Faculty):
+        if updated_faculty.id is None:
+            return None  # Ensure faculty object has an ID
+
+        existing = self.repo.get_faculty_by_id(updated_faculty.id)
         if not existing:
             return None
-
-        updated_faculty.id = faculty_id
 
         saved = self.repo.update_faculty(updated_faculty)
         return saved.to_dict() if saved else None
 
     def delete_faculty(self, faculty_id: int):
         return self.repo.delete_faculty(faculty_id)
+

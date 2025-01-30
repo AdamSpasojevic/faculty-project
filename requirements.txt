@@ -1,0 +1,8 @@
+Flask
+Flask-SQLAlchemy
+pydantic
+gunicorn
+flask-cors
+psycopg2-binary  # If using PostgreSQL
+mysql-connector-python  # If using MySQL
+python-dotenv  # For environment variables

@@ -8,10 +8,10 @@ class Faculty(db.Model):
     department = db.Column(db.String(100), nullable=False)
     title = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, name, department, title):
-        self.name = name
-        self.department = department
-        self.title = title
+    def __init__(self, dto):
+        self.name = dto.name
+        self.department = dto.department
+        self.title = dto.title
 
     def to_dict(self):
         return {
@@ -20,7 +20,3 @@ class Faculty(db.Model):
             "department": self.department,
             "title": self.title
         }
-
-    @classmethod
-    def from_dto(cls, dto):
-        return cls(name=dto.name, department=dto.department, title=dto.title)
